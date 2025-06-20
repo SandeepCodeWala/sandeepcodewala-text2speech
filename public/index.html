@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Text to Speech | AI Voice Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-blue: #2563eb;
+      --dark-blue: #1e40af;
+      --light-gray: #f9fafb;
+      --dark-text: #111827;
+      --light-text: #d1d5db;
+      --header-bg: #4b5563;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--light-gray);
+      color: var(--dark-text);
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--header-bg) url('https://images.unsplash.com/photo-1523966211575-eb4a01e7dd0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
+      padding: 100px 20px;
+      text-align: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1;
+    }
+
+    header * {
+      position: relative;
+      z-index: 2;
+    }
+
+    header h1 {
+      font-size: 48px;
+      margin-bottom: 16px;
+      font-weight: 800;
+    }
+
+    header p {
+      font-size: 20px;
+      margin-bottom: 30px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      background-color: var(--primary-blue);
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: background 0.3s ease, transform 0.2s ease;
+      display: inline-block;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .btn:hover {
+      background-color: var(--dark-blue);
+      transform: translateY(-2px);
+    }
+
+    .section {
+      padding: 80px 20px;
+      max-width: 1000px;
+      margin: auto;
+      text-align: center;
+    }
+
+    .tts-controls-container {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      margin-top: 40px;
+      align-items: center;
+    }
+
+    .tts-control-group {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 700px;
+      text-align: left;
+    }
+
+    .tts-control-group h3 {
+      font-size: 28px;
+      margin: 0 0 20px;
+      color: var(--primary-blue);
+      text-align: center;
+    }
+
+    .tts-input-area textarea {
+      width: 100%;
+      height: 200px;
+      padding: 15px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 16px;
+      resize: vertical;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .select-group {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .select-group label {
+      font-weight: 600;
+    }
+
+    .select-group select {
+      padding: 12px 15px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 16px;
+      min-width: 120px;
+    }
+
+    #audioPlayer {
+      width: 100%;
+      max-width: 600px;
+      margin: 20px auto;
+      display: block;
+    }
+
+    #downloadLink {
+      margin-top: 20px;
+      display: none;
+    }
+
+    #loadingIndicator {
+      display: none;
+      margin-top: 20px;
+      font-size: 18px;
+      color: var(--primary-blue);
+      font-weight: 600;
+    }
+
+    #messageArea {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 16px;
+      text-align: center;
+      display: none;
+    }
+
+    #messageArea.success {
+      background-color: #d1fae5;
+      color: #065f46;
+      border: 1px solid #34d399;
+    }
+
+    #messageArea.error {
+      background-color: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #ef4444;
+    }
+
+    footer {
+      background-color: var(--dark-text);
+      color: var(--light-text);
+      text-align: center;
+      padding: 30px 20px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Convert Text to Voice Instantly</h1>
+  <p>Natural AI voices in multiple languages. Create compelling audio from your text with ease.</p>
+  <a href="#try-tts" class="btn">Get Started Now</a>
+</header>
+
+<section class="section" id="try-tts">
+  <h2>Experience Our Text-to-Speech</h2>
+  <div class="tts-controls-container">
+
+    <div class="tts-control-group">
+      <h3>Premium Text-to-Speech Generation</h3>
+      <div class="tts-input-area">
+        <textarea id="ttsTextPremium" maxlength="2000" placeholder="Enter your text here for premium speech..."></textarea>
+        <div class="select-group">
+          <label for="premiumVoiceId">Voice:</label>
+          <select id="premiumVoiceId">
+            <option value="">Loading voices...</option>
+          </select>
+          <button class="btn" onclick="generatePremiumAudio()">Generate Premium Audio</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tts-control-group">
+      <h3>Free Text-to-Speech Generation</h3>
+      <div class="tts-input-area">
+        <textarea id="ttsTextFree" maxlength="2000" placeholder="Enter your text here for free speech..."></textarea>
+        <div class="select-group">
+          <label for="freeLangCode">Language:</label>
+          <select id="freeLangCode">
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+          </select>
+          <button class="btn" onclick="generateFreeAudio()">Generate Free Audio</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="loadingIndicator">Generating audio... Please wait.</div>
+    <audio id="audioPlayer" controls style="display: none;"></audio>
+    <a id="downloadLink" class="btn" download target="_blank">Download Generated Audio</a>
+    <div id="messageArea"></div>
+
+  </div>
+</section>
+
+<footer>
+  <p>&copy; 2025 Text to Speech Project. All rights reserved.</p>
+</footer>
+
+<script>
+  const audioPlayer = document.getElementById('audioPlayer');
+  const loadingIndicator = document.getElementById('loadingIndicator');
+  const messageArea = document.getElementById('messageArea');
+  const downloadLink = document.getElementById('downloadLink');
+  const premiumVoiceIdSelect = document.getElementById('premiumVoiceId');
+
+  let lastGeneratedAudioUrl = '';
+
+  function showLoading() {
+    loadingIndicator.style.display = 'block';
+    messageArea.style.display = 'none';
+    audioPlayer.style.display = 'none';
+    downloadLink.style.display = 'none';
+    audioPlayer.removeAttribute('src');
+  }
+
+  function hideLoading() {
+    loadingIndicator.style.display = 'none';
+  }
+
+  function showMessage(msg, type) {
+    messageArea.textContent = msg;
+    messageArea.className = '';
+    messageArea.classList.add(type);
+    messageArea.style.display = 'block';
+  }
+
+  // Function to fetch voices from ElevenLabs and populate the dropdown
+  async function fetchElevenLabsVoices() {
+console.log("this is voice data")
+
+    try {
+      const res = await fetch('/voices');
+      const data = await res.json();
+      if (data.success && data.voices.length > 0) {
+        premiumVoiceIdSelect.innerHTML = ''; // Clear existing options
+        data.voices.forEach(voice => {
+          const option = document.createElement('option');
+          option.value = voice.voice_id;
+          option.textContent = `${voice.name} (${voice.labels.gender || 'N/A'}, ${voice.labels.accent || 'N/A'})`;
+          premiumVoiceIdSelect.appendChild(option);
+        });
+      } else {
+        premiumVoiceIdSelect.innerHTML = '<option value="">No voices available (Check API Key)</option>';
+        showMessage("Could not fetch ElevenLabs voices. Check server logs.", "error");
+      }
+    } catch (error) {
+      console.error("Error fetching ElevenLabs voices:", error);
+      premiumVoiceIdSelect.innerHTML = '<option value="">Error loading voices</option>';
+      showMessage("Error loading premium voices. Server might be down or API key is missing.", "error");
+    }
+  }
+
+  async function generatePremiumAudio() {
+    const text = document.getElementById('ttsTextPremium').value;
+    const voiceId = document.getElementById('premiumVoiceId').value; // Get selected voice ID
+
+    if (!text.trim()) return showMessage("Please enter text.", "error");
+    if (!voiceId) return showMessage("Please select a premium voice.", "error");
+
+
+    showLoading();
+
+    const res = await fetch('/generate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text, voiceId}) // Send voiceId directly
+    });
+
+    const data = await res.json();
+    hideLoading();
+
+    if (data.success) {
+      lastGeneratedAudioUrl = data.url;
+      audioPlayer.src = data.url;
+      audioPlayer.style.display = 'block';
+      audioPlayer.play();
+      downloadLink.href = data.url;
+      downloadLink.download = "premium_speech.mp3";
+      downloadLink.style.display = 'inline-block';
+      showMessage("Premium audio generated successfully!", "success");
+    } else {
+      showMessage("Error: " + (data.message || "Something went wrong"), "error");
+    }
+  }
+
+  async function generateFreeAudio() {
+    const text = document.getElementById('ttsTextFree').value;
+    const language = document.getElementById('freeLangCode').value;
+
+    if (!text.trim()) return showMessage("Please enter text.", "error");
+
+    showLoading();
+
+    const res = await fetch('/generate-free', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text, language})
+    });
+
+    const data = await res.json();
+    hideLoading();
+
+    if (data.success) {
+      lastGeneratedAudioUrl = data.url;
+      audioPlayer.src = data.url;
+      audioPlayer.style.display = 'block';
+      audioPlayer.play();
+      downloadLink.href = data.url;
+      downloadLink.download = "free_speech.mp3";
+      downloadLink.style.display = 'inline-block';
+      showMessage("Free audio generated successfully!", "success");
+    } else {
+      showMessage("Error: " + (data.message || "Something went wrong"), "error");
+    }
+  }
+
+  // Fetch voices when the page loads
+  document.addEventListener('DOMContentLoaded', fetchElevenLabsVoices);
+</script>
+
+</body>
+</html>
