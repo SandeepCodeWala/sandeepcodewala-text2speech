@@ -7,17 +7,24 @@ const { spawn } = require("child_process");
 require("dotenv").config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(bodyParser.json());
-app.use(express.static("public"));
+app.use(express.static("public")); // Serves /public/index.html etc.
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 
 if (!ELEVENLABS_API_KEY) {
   console.warn("⚠️ ELEVENLABS_API_KEY not found. Premium voice generation may not work.");
 }
+
+/**
+ * Serve the home page
+ */
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 /**
  * GET /voices
@@ -40,13 +47,6 @@ app.get("/voices", async (req, res) => {
 
     const allVoices = response.data.voices || [];
 
-    // You can optionally filter Indian-sounding voices here:
-    // const indianVoices = allVoices.filter(voice => {
-    //   const lang = voice.labels?.language?.toLowerCase() || '';
-    //   const accent = voice.labels?.accent?.toLowerCase() || '';
-    //   return lang.includes("hindi") || accent.includes("indian");
-    // });
-
     res.json({ success: true, voices: allVoices });
   } catch (error) {
     console.error("❌ Error fetching ElevenLabs voices:", error.message);
@@ -57,11 +57,10 @@ app.get("/voices", async (req, res) => {
   }
 });
 
-
 /**
  * POST /generate
  * Premium voice generation using ElevenLabs
- * Expects: text, voiceId (direct from ElevenLabs)
+ * Expects: text, voiceId
  */
 app.post("/generate", async (req, res) => {
   const { text, voiceId } = req.body;
@@ -164,7 +163,4 @@ app.post("/generate-free", (req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`✅ Server running: http://localhost:${PORT}`);
-  if (!ELEVENLABS_API_KEY) {
-    console.warn("⚠️ ElevenLabs API Key is missing. Premium voice generation will not work.");
-  }
 });
