@@ -6,9 +6,37 @@ const bodyParser = require("body-parser");
 const { spawn } = require("child_process");
 require("dotenv").config();
 const { v4: uuidv4 } = require('uuid'); // Import uuid
+const cors = require('cors'); // ✨ IMPORT CORS HERE ✨
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// ----------------------------------------------------
+// Middleware: Place these at the top, after app initialization
+// ----------------------------------------------------
+// ✨ USE CORS MIDDLEWARE HERE BEFORE OTHER MIDDLEWARES ✨
+const allowedOrigins = [
+  'http://localhost:3000', // For local React development
+  process.env.FRONTEND_URL, // For your deployed Render frontend URL
+  // Add any other specific origins if needed, e.g., if you have another domain
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  credentials: true, // If you were sending cookies/auth headers
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions)); // Apply CORS middleware
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public'))); // Keep this for serving files
@@ -99,14 +127,12 @@ app.post("/generate", async (req, res) => {
       }
     );
 
-    // --- CHANGE STARTS HERE ---
     const filename = `premium_${uuidv4()}.mp3`; // Unique filename
     const outputPath = path.join(__dirname, "public", filename);
     fs.writeFileSync(outputPath, response.data);
     console.log(`✅ Premium audio saved to: ${outputPath}`);
 
     res.json({ success: true, url: `/${filename}` }); // Return the unique URL
-    // --- CHANGE ENDS HERE ---
 
   } catch (err) {
     const errorDetails = err?.response?.data
@@ -132,10 +158,8 @@ app.post("/generate-free", (req, res) => {
     });
   }
 
-  // --- CHANGE STARTS HERE ---
   const filename = `free_${uuidv4()}.mp3`; // Unique filename
   const outputPath = path.join(__dirname, "public", filename);
-  // --- CHANGE ENDS HERE ---
 
   const pythonProcess = spawn("python3", [path.join(__dirname, "generate.py"), text, language, outputPath]); // Pass outputPath to Python
 
@@ -168,6 +192,7 @@ app.post("/generate-free", (req, res) => {
   });
 });
 
+// Start server
 app.listen(PORT, () => {
   console.log(`✅ Server running: http://localhost:${PORT}`);
   console.log(`Note: Frontend (React) typically runs on http://localhost:3000 in development.`);
