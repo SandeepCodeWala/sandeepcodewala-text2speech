@@ -10,21 +10,29 @@ const cors = require("cors");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const BASE_URL = 'https://sandeepcodewala-text2speech.onrender.com' || `http://localhost:${PORT}`;
+// BASE_URL should ideally be dynamically set based on environment for robust solutions
+// but for now, it's correct for files served from this backend itself.
+const BASE_URL = 'https://sandeepcodewala-text2speech.onrender.com';
 
 // --------------------------------------
 // CORS Setup
 // --------------------------------------
 const allowedOrigins = [
   "http://localhost:3000",
-  'https://sandeepcodewala-text2speech.onrender.com',
+  'https://sandeepcodewala-text2speech.onrender.com', // Your backend's own Render URL
+  // <<< IMPORTANT: ADD YOUR FIREBASE HOSTING DOMAIN HERE >>>
+  'https://texttovoicepro-cf1e6.web.app/', // Example: 'https://my-tts-project.web.app'
+  'https://texttovoicepro-cf1e6.firebaseapp.com' // Example: 'https://my-tts-project.firebaseapp.com'
 ];
 
 const corsOptions = {
   origin(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    // or from origins explicitly listed in allowedOrigins
     if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
+    console.error(`CORS blocked request from origin: ${origin}`);
     callback(new Error("Not allowed by CORS"));
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -34,6 +42,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
+// Serve static files from the 'public' directory (where audio files are saved)
 app.use(express.static(path.join(__dirname, "public")));
 
 const ELEVENLABS_API_KEY = 'sk_afea93c7ceb46d0ac4638def5b4f4eec210aefe570edcd73';
@@ -65,7 +74,7 @@ app.get("/voices", async (req, res) => {
     });
     res.json({ success: true, voices: data.voices });
   } catch (error) {
-    console.error("❌ Error fetching voices:", error.message);
+    console.error("❌ Error fetching voices from ElevenLabs:", error.message);
     res.status(500).json({ success: false, message: "Failed to fetch voices" });
   }
 });
@@ -102,10 +111,15 @@ app.post("/generate", async (req, res) => {
     const outputPath = path.join(__dirname, "public", filename);
     fs.writeFileSync(outputPath, response.data);
 
-    const fileUrl = `${BASE_URL}/${filename}`;
+    const fileUrl = `${BASE_URL}/${filename}`; // Audio file served from your backend
     res.json({ success: true, url: fileUrl });
   } catch (err) {
     console.error("❌ ElevenLabs TTS Error:", err.message);
+    // Log the full error response from ElevenLabs if available
+    if (err.response) {
+      console.error("ElevenLabs Response Data:", err.response.data.toString());
+      console.error("ElevenLabs Status:", err.response.status);
+    }
     res.status(500).json({ success: false, message: "Premium TTS generation failed" });
   }
 });
@@ -123,6 +137,7 @@ app.post("/generate-free", (req, res) => {
   const filename = `free_${uuidv4()}.mp3`;
   const outputPath = path.join(__dirname, "public", filename);
 
+  // Ensure 'python3' is available on Render and generate.py is in the root of your backend service
   const pythonProcess = spawn("python3", [path.join(__dirname, "generate.py"), text, language, outputPath]);
 
   let errorOutput = "";
@@ -133,17 +148,17 @@ app.post("/generate-free", (req, res) => {
 
   pythonProcess.on("close", (code) => {
     if (code === 0 && fs.existsSync(outputPath)) {
-      const fileUrl = `${BASE_URL}/${filename}`;
+      const fileUrl = `${BASE_URL}/${filename}`; // Audio file served from your backend
       res.json({ success: true, url: fileUrl });
     } else {
-      console.error("❌ Python Error:", errorOutput || "Unknown error");
+      console.error("❌ Python Error (gTTS):", errorOutput || "Unknown error during gTTS generation");
       res.status(500).json({ success: false, message: errorOutput || "gTTS generation failed" });
     }
   });
 
   pythonProcess.on("error", (err) => {
-    console.error("❌ Failed to start gTTS:", err.message);
-    res.status(500).json({ success: false, message: "Server error starting gTTS" });
+    console.error("❌ Failed to start gTTS Python process:", err.message);
+    res.status(500).json({ success: false, message: "Server error starting gTTS process" });
   });
 });
 

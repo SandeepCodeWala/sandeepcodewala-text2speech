@@ -1,12 +1,12 @@
 // client/src/api.js
 
-const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001';
-
+const API_BASE_URL = 'https://sandeepcodewala-text2speech.onrender.com'; // Your deployed Render backend URL
 
 export const fetchElevenLabsVoices = async () => {
-  const res = await fetch(`https://api.elevenlabs.io/v1/voices`);
+  // This now correctly calls your backend's /voices endpoint
+  const res = await fetch(`${API_BASE_URL}/voices`);
   if (!res.ok) {
-    const errorText = await res.text(); // Get raw text for better debugging
+    const errorText = await res.text();
     try {
       const errorJson = JSON.parse(errorText);
       throw new Error(errorJson.message || `API Error: ${res.status}`);
