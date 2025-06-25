@@ -20,11 +20,10 @@ const BASE_URL = 'https://sandeepcodewala-text2speech.onrender.com';
 const allowedOrigins = [
   "http://localhost:3000",
   'https://sandeepcodewala-text2speech.onrender.com', // Your backend's own Render URL
- ' https://jsquestion.in',
- 'http://jsquestion.in',
-  // <<< IMPORTANT: ADD YOUR FIREBASE HOSTING DOMAIN HERE >>>
-  'https://texttovoicepro-cf1e6.web.app', // Example: 'https://my-tts-project.web.app'
-  'https://texttovoicepro-cf1e6.firebaseapp.com' // Example: 'https://my-tts-project.firebaseapp.com'
+  'https://jsquestion.in', // CORRECTED: No leading space here!
+  'http://jsquestion.in',  // Keep this for consistency, just in case HTTP is used
+  'https://texttovoicepro-cf1e6.web.app', // Your Firebase app's default .web.app domain
+  'https://texttovoicepro-cf1e6.firebaseapp.com' // Your Firebase app's default .firebaseapp.com domain
 ];
 
 const corsOptions = {
