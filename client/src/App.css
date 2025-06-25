@@ -164,6 +164,7 @@ header p {
 
 /* TTS Controls Container */
 .tts-controls-container {
+  display: grid;
    /* Use CSS Grid for flexible layout */
   grid-template-columns: 1fr; /* Default to single column */
   gap: 40px;

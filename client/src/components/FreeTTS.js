@@ -60,7 +60,7 @@ const FreeTTS = ({ onAudioGenerated, onLoadingChange, onMessageChange }) => {
 
   return (
     <div className="tts-control-group">
-      <h3>Free Text-to-Speech Generation</h3>
+      <h3>Free AI Text-to-Speech (Girl Only)</h3>
       <div className="tts-input-area">
         <textarea
           id="ttsTextFree"

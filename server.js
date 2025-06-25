@@ -5,31 +5,28 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const { spawn } = require("child_process");
 require("dotenv").config();
-const { v4: uuidv4 } = require("uuid");
+const { v4: uuidv4 } = require("uuid"); // Keep uuidv4 if you might revert or use it elsewhere
 const cors = require("cors");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-// BASE_URL should ideally be dynamically set based on environment for robust solutions
-// but for now, it's correct for files served from this backend itself.
-const BASE_URL = 'https://sandeepcodewala-text2speech.onrender.com';
+const BASE_URL = process.env.RENDER_EXTERNAL_URL || 'http://localhost:' + PORT;
 
 // --------------------------------------
 // CORS Setup
 // --------------------------------------
 const allowedOrigins = [
   "http://localhost:3000",
-  'https://sandeepcodewala-text2speech.onrender.com', // Your backend's own Render URL
-  'https://jsquestion.in', // CORRECTED: No leading space here!
-  'http://jsquestion.in',  // Keep this for consistency, just in case HTTP is used
-  'https://texttovoicepro-cf1e6.web.app', // Your Firebase app's default .web.app domain
-  'https://texttovoicepro-cf1e6.firebaseapp.com' // Your Firebase app's default .firebaseapp.com domain
+  `http://localhost:${PORT}`,
+  BASE_URL,
+  'https://jsquestion.in',
+  'http://jsquestion.in',
+  'https://texttovoicepro-cf1e6.web.app',
+  'https://texttovoicepro-cf1e6.firebaseapp.com'
 ];
 
 const corsOptions = {
   origin(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    // or from origins explicitly listed in allowedOrigins
     if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
@@ -43,7 +40,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
-// Serve static files from the 'public' directory (where audio files are saved)
+// Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, "public")));
 
 const ELEVENLABS_API_KEY = 'sk_afea93c7ceb46d0ac4638def5b4f4eec210aefe570edcd73';
@@ -59,29 +56,7 @@ app.get("/", (req, res) => {
 });
 
 // --------------------------------------
-// Fetch ElevenLabs Voices
-// --------------------------------------
-app.get("/voices", async (req, res) => {
-  if (!ELEVENLABS_API_KEY) {
-    return res.status(503).json({ success: false, message: "API key missing" });
-  }
-
-  try {
-    const { data } = await axios.get("https://api.elevenlabs.io/v1/voices", {
-      headers: {
-        "xi-api-key": ELEVENLABS_API_KEY,
-        "Content-Type": "application/json",
-      },
-    });
-    res.json({ success: true, voices: data.voices });
-  } catch (error) {
-    console.error("❌ Error fetching voices from ElevenLabs:", error.message);
-    res.status(500).json({ success: false, message: "Failed to fetch voices" });
-  }
-});
-
-// --------------------------------------
-// Generate Premium TTS
+// Generate Premium TTS (MODIFIED FILENAME)
 // --------------------------------------
 app.post("/generate", async (req, res) => {
   const { text, voiceId } = req.body;
@@ -108,15 +83,15 @@ app.post("/generate", async (req, res) => {
       }
     );
 
-    const filename = `premium_${uuidv4()}.mp3`;
+    // --- CHANGE HERE: Fixed filename ---
+    const filename = `premium_latest.mp3`; // Always overwrite this file
     const outputPath = path.join(__dirname, "public", filename);
     fs.writeFileSync(outputPath, response.data);
 
-    const fileUrl = `${BASE_URL}/${filename}`; // Audio file served from your backend
+    const fileUrl = `${BASE_URL}/${filename}`;
     res.json({ success: true, url: fileUrl });
   } catch (err) {
     console.error("❌ ElevenLabs TTS Error:", err.message);
-    // Log the full error response from ElevenLabs if available
     if (err.response) {
       console.error("ElevenLabs Response Data:", err.response.data.toString());
       console.error("ElevenLabs Status:", err.response.status);
@@ -126,7 +101,7 @@ app.post("/generate", async (req, res) => {
 });
 
 // --------------------------------------
-// Generate Free TTS
+// Generate Free TTS (MODIFIED FILENAME)
 // --------------------------------------
 app.post("/generate-free", (req, res) => {
   const { text, language } = req.body;
@@ -135,10 +110,10 @@ app.post("/generate-free", (req, res) => {
     return res.status(400).json({ success: false, message: "Missing text or language" });
   }
 
-  const filename = `free_${uuidv4()}.mp3`;
+  // --- CHANGE HERE: Fixed filename ---
+  const filename = `free_latest.mp3`; // Always overwrite this file
   const outputPath = path.join(__dirname, "public", filename);
 
-  // Ensure 'python3' is available on Render and generate.py is in the root of your backend service
   const pythonProcess = spawn("python3", [path.join(__dirname, "generate.py"), text, language, outputPath]);
 
   let errorOutput = "";
@@ -149,10 +124,15 @@ app.post("/generate-free", (req, res) => {
 
   pythonProcess.on("close", (code) => {
     if (code === 0 && fs.existsSync(outputPath)) {
-      const fileUrl = `${BASE_URL}/${filename}`; // Audio file served from your backend
+      const fileUrl = `${BASE_URL}/${filename}`;
       res.json({ success: true, url: fileUrl });
     } else {
       console.error("❌ Python Error (gTTS):", errorOutput || "Unknown error during gTTS generation");
+      if (fs.existsSync(outputPath)) {
+          fs.unlink(outputPath, (unlinkErr) => {
+              if (unlinkErr) console.error('Error deleting temp gTTS audio file after failure:', unlinkErr);
+          });
+      }
       res.status(500).json({ success: false, message: errorOutput || "gTTS generation failed" });
     }
   });
@@ -161,6 +141,68 @@ app.post("/generate-free", (req, res) => {
     console.error("❌ Failed to start gTTS Python process:", err.message);
     res.status(500).json({ success: false, message: "Server error starting gTTS process" });
   });
+});
+
+// --------------------------------------
+// Generate Azure TTS (MODIFIED FILENAME)
+// --------------------------------------
+app.post("/api/azure-tts", (req, res) => {
+    const { text, voiceName } = req.body;
+
+    if (!text || !voiceName) {
+        return res.status(400).json({ success: false, message: "Text and voiceName are required." });
+    }
+
+    // --- CHANGE HERE: Fixed filename ---
+    const filename = `azure_latest.mp3`; // Always overwrite this file
+    const outputPath = path.join(__dirname, "public", filename);
+
+    const pythonScriptPath = path.join(__dirname, "azure_tts_generator.py");
+
+    const pythonProcess = spawn("python3", [
+        pythonScriptPath,
+        text,
+        voiceName,
+        outputPath // Pass the fixed output path to the Python script
+    ]);
+
+    let pythonOutput = "";
+    let pythonError = "";
+
+    pythonProcess.stdout.on("data", (data) => {
+        pythonOutput += data.toString();
+        console.log(`Azure Python stdout: ${data}`);
+    });
+
+    pythonProcess.stderr.on("data", (data) => {
+        pythonError += data.toString();
+        console.error(`Azure Python stderr: ${data}`);
+    });
+
+    pythonProcess.on("close", (code) => {
+        if (code === 0 && fs.existsSync(outputPath)) {
+            console.log("✅ Azure TTS Python script finished successfully.");
+            const fileUrl = `${BASE_URL}/${filename}`;
+            res.json({ success: true, url: fileUrl });
+        } else {
+            console.error(`❌ Azure TTS Python script exited with code ${code}.`);
+            console.error(`Azure TTS Python error output: ${pythonError || "No specific error from Python."}`);
+            if (fs.existsSync(outputPath)) {
+                fs.unlink(outputPath, (unlinkErr) => {
+                    if (unlinkErr) console.error('Error deleting temp Azure TTS audio file after failure:', unlinkErr);
+                });
+            }
+            res.status(500).json({ 
+                success: false, 
+                message: pythonError.trim() || "Azure TTS generation failed." 
+            });
+        }
+    });
+
+    pythonProcess.on("error", (err) => {
+        console.error("❌ Failed to start Azure TTS Python process:", err.message);
+        res.status(500).json({ success: false, message: "Server error starting Azure TTS process." });
+    });
 });
 
 // --------------------------------------
