@@ -10,13 +10,25 @@ function App() {
   const [message, setMessage] = useState({ text: '', type: '' });
   const audioPlayerRef = useRef(null); // Create a ref for the audio element
 
-  const handleAudioGenerated = useCallback((url) => {
-    setAudioUrl(url);
+const handleAudioGenerated = useCallback((url) => {
+  if (url instanceof Blob) {
+    const blobUrl = URL.createObjectURL(url);
+    setAudioUrl(blobUrl);
     if (audioPlayerRef.current) {
-      audioPlayerRef.current.load(); // Load the new source
+      audioPlayerRef.current.load();
       audioPlayerRef.current.play().catch(e => console.error("Audio play failed:", e));
     }
-  }, []);
+  } else if (typeof url === 'string') {
+    setAudioUrl(url);
+    if (audioPlayerRef.current) {
+      audioPlayerRef.current.load();
+      audioPlayerRef.current.play().catch(e => console.error("Audio play failed:", e));
+    }
+  } else {
+    console.error('Unknown audio URL format:', url);
+  }
+}, []);
+
 
   const handleLoadingChange = useCallback((loading) => {
     setIsLoading(loading);

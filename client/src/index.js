@@ -3,8 +3,18 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import ReactGA from 'react-ga4';
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+const GA4_MEASUREMENT_ID = process.env.REACT_APP_GA4_MEASUREMENT_ID || 'G-X4JQVB1HH9';
+// Initialize Google Analytics 4
+ReactGA.initialize(GA4_MEASUREMENT_ID);
+
+// Optional: Send initial pageview for the root path
+// This is important for Single Page Applications (SPAs)
+ReactGA.send({ hitType: 'pageview', page: window.location.pathname });
+
 root.render(
   <React.StrictMode>
     <App />
