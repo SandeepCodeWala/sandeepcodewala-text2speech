@@ -10,14 +10,14 @@ const cors = require("cors");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const BASE_URL = process.env.BACKEND_BASE_URL || `http://localhost:${PORT}`;
+const BASE_URL = 'https://sandeepcodewala-text2speech.onrender.com' || `http://localhost:${PORT}`;
 
 // --------------------------------------
 // CORS Setup
 // --------------------------------------
 const allowedOrigins = [
   "http://localhost:3000",
-  process.env.FRONTEND_URL,
+  'https://sandeepcodewala-text2speech.onrender.com',
 ];
 
 const corsOptions = {
@@ -36,7 +36,7 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+const ELEVENLABS_API_KEY = 'sk_afea93c7ceb46d0ac4638def5b4f4eec210aefe570edcd73';
 
 if (ELEVENLABS_API_KEY) {
   console.log("✅ ElevenLabs API Key loaded (first 5 chars):", ELEVENLABS_API_KEY.slice(0, 5) + "...");
