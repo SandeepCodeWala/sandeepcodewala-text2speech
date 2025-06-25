@@ -1,6 +1,6 @@
 // client/src/components/PremiumTTS.js
-import React, { useState, useEffect } from "react";
-import { fetchElevenLabsVoices, generatePremiumAudio } from "../api";
+import React, { useState } from "react";
+import { generatePremiumAudio } from "../api";
 
 const PremiumTTS = ({ onAudioGenerated, onLoadingChange, onMessageChange }) => {
   const [text, setText] = useState("");
