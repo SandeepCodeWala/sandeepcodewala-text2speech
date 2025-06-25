@@ -5,7 +5,7 @@ import ReactGA from "react-ga4";
 
 const FreeTTS = ({ onAudioGenerated, onLoadingChange, onMessageChange }) => {
   const [text, setText] = useState("");
-  const [language, setLanguage] = useState("en");
+  const [language, setLanguage] = useState("hi");
 
   const handleGenerate = async () => {
     if (!text.trim()) {
