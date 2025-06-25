@@ -21,7 +21,7 @@ const allowedOrigins = [
   "http://localhost:3000",
   'https://sandeepcodewala-text2speech.onrender.com', // Your backend's own Render URL
   // <<< IMPORTANT: ADD YOUR FIREBASE HOSTING DOMAIN HERE >>>
-  'https://texttovoicepro-cf1e6.web.app/', // Example: 'https://my-tts-project.web.app'
+  'https://texttovoicepro-cf1e6.web.app', // Example: 'https://my-tts-project.web.app'
   'https://texttovoicepro-cf1e6.firebaseapp.com' // Example: 'https://my-tts-project.firebaseapp.com'
 ];
 
