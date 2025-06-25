@@ -2,14 +2,59 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <!-- Updated Favicon: Using an inline SVG for high quality and small size -->
+    <!-- This SVG creates a simple speaker icon, representing "Text to Voice Pro" -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234F46E5'%3E%3Cpath d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.98 7-4.66 7-8.77s-2.99-7.79-7-8.77z'/%3E%3C/svg%3E" type="image/svg+xml">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta name="description" content="Text to Speech App" />
-    <title>React App</title>
+
+    <!-- Enhanced SEO Meta Tags -->
+    <meta name="description" content="Instantly convert text to natural-sounding speech with our advanced Text-to-Speech app. Generate high-quality audio from any text using AI voices for free or premium features. Perfect for content creators, developers, and anyone needing quick voiceovers. Try our free gTTS and premium Eleven Labs options!" />
+    <meta name="keywords" content="text to speech, TTS, AI voices, voice generator, speech synthesis, free audio converter, premium voices, Eleven Labs, gTTS, online voice generator, convert text to audio, natural voices, speech software" />
+    <meta name="author" content="Sandeep Codewala" />
+    <meta name="robots" content="index, follow" /> <!-- Ensures search engines crawl and index your page -->
+
+    <!-- Open Graph / Facebook / LinkedIn / WhatsApp Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://jsquestion.in/" /> <!-- Replace with your actual live domain -->
+    <meta property="og:title" content="Text to Voice Pro - Free & Premium AI Text-to-Speech" />
+    <meta property="og:description" content="Instantly convert text to natural-sounding speech with our advanced Text-to-Speech app. Generate high-quality audio from any text using AI voices for free or premium features." />
+    <meta property="og:image" content="https://placehold.co/1200x630/000/fff?text=Text+To+Voice+Pro" /> <!-- Placeholder, replace with an actual captivating image URL -->
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://jsquestion.in/" /> <!-- Replace with your actual live domain -->
+    <meta name="twitter:title" content="Text to Voice Pro - Free & Premium AI Text-to-Speech" />
+    <meta name="twitter:description" content="Instantly convert text to natural-sounding speech with our advanced Text-to-Speech app. Generate high-quality audio from any text using AI voices for free or premium features." />
+    <meta name="twitter:image" content="https://placehold.co/800x418/000/fff?text=Text+To+Voice+Pro" /> <!-- Placeholder, replace with an actual captivating image URL -->
+
+
+    <title>Text to Voice Pro - Free & Premium AI Text-to-Speech</title> <!-- More descriptive title -->
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    
+    <!-- Simple branding/logo visible immediately before React app loads -->
+ 
+
     <div id="root"></div>
+
+    <style>
+      /* Basic styling for the pre-React branding to make it centered and visible */
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #f0f4f8; /* Light background */
+      }
+      #root {
+        /* This ensures the React app can take over the full space below */
+        flex-grow: 1;
+        width: 100%;
+      }
+    </style>
   </body>
 </html>

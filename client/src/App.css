@@ -164,12 +164,12 @@ header p {
 
 /* TTS Controls Container */
 .tts-controls-container {
-  display: grid; /* Use CSS Grid for flexible layout */
+   /* Use CSS Grid for flexible layout */
   grid-template-columns: 1fr; /* Default to single column */
   gap: 40px;
   margin-top: 40px;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
 }
 
 @media (min-width: 992px) {
@@ -185,7 +185,7 @@ header p {
   padding: 40px;
   box-shadow: 0 15px 40px var(--shadow-color);
   width: 100%;
-  max-width: 600px; /* Max width for individual cards */
+  max-width: 1000px; /* Max width for individual cards */
   text-align: left;
   border: 1px solid var(--border-color); /* Subtle border */
   transition: transform 0.3s ease, box-shadow 0.3s ease;

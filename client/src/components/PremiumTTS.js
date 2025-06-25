@@ -100,7 +100,7 @@ const PremiumTTS = ({ onAudioGenerated, onLoadingChange, onMessageChange }) => {
               ))
             )}
           </select>
-          <button className="btn" onClick={handleGenerate}>
+          <button disabled className="btn" onClick={handleGenerate}>
             Generate Premium Audio
           </button>
         </div>

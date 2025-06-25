@@ -1,41 +1,52 @@
 // client/src/App.js
-import React, { useState, useCallback, useRef } from 'react'; // Import useRef
-import PremiumTTS from './components/PremiumTTS';
-import FreeTTS from './components/FreeTTS';
-import './App.css';
+import React, { useState, useCallback, useRef } from "react"; // Import useRef
+import PremiumTTS from "./components/PremiumTTS";
+import FreeTTS from "./components/FreeTTS";
+import "./App.css";
+import logo from "./logo.png"; // Import logo image
 
 function App() {
-  const [audioUrl, setAudioUrl] = useState('');
+  const [audioUrl, setAudioUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState({ text: '', type: '' });
+  const [message, setMessage] = useState({ text: "", type: "" });
   const audioPlayerRef = useRef(null); // Create a ref for the audio element
 
-const handleAudioGenerated = useCallback((url) => {
-  if (url instanceof Blob) {
-    const blobUrl = URL.createObjectURL(url);
-    setAudioUrl(blobUrl);
-    if (audioPlayerRef.current) {
-      audioPlayerRef.current.load();
-      audioPlayerRef.current.play().catch(e => console.error("Audio play failed:", e));
+  const handleAudioGenerated = useCallback((url) => {
+    if (url instanceof Blob) {
+      const blobUrl = URL.createObjectURL(url);
+      setAudioUrl(blobUrl);
+      if (audioPlayerRef.current) {
+        audioPlayerRef.current.load();
+        audioPlayerRef.current
+          .play()
+          .catch((e) => console.error("Audio play failed:", e));
+      }
+    } else if (typeof url === "string") {
+      setAudioUrl(url);
+      if (audioPlayerRef.current) {
+        audioPlayerRef.current.load();
+        audioPlayerRef.current
+          .play()
+          .catch((e) => console.error("Audio play failed:", e));
+      }
+    } else {
+      console.error("Unknown audio URL format:", url);
     }
-  } else if (typeof url === 'string') {
-    setAudioUrl(url);
-    if (audioPlayerRef.current) {
-      audioPlayerRef.current.load();
-      audioPlayerRef.current.play().catch(e => console.error("Audio play failed:", e));
-    }
-  } else {
-    console.error('Unknown audio URL format:', url);
-  }
-}, []);
+  }, []);
 
-
-  const handleLoadingChange = useCallback((loading) => {
-    setIsLoading(loading);
-    if (!loading && (message.text.includes('Generating') || message.text.includes('Loading voices'))) {
-        setMessage({ text: '', type: '' });
-    }
-  }, [message.text]);
+  const handleLoadingChange = useCallback(
+    (loading) => {
+      setIsLoading(loading);
+      if (
+        !loading &&
+        (message.text.includes("Generating") ||
+          message.text.includes("Loading voices"))
+      ) {
+        setMessage({ text: "", type: "" });
+      }
+    },
+    [message.text]
+  );
 
   const handleMessageChange = useCallback((text, type) => {
     setMessage({ text, type });
@@ -44,20 +55,31 @@ const handleAudioGenerated = useCallback((url) => {
   return (
     <>
       <header>
+        <img src={logo} alt="TextToVoicePro Logo" style={{ height: "60px" }} />
+        <h3>|| Free Text to Speech || No Login || Unlimited Text to Voice ||</h3>
+
         <h1>Convert Text to Voice Instantly</h1>
-        <p>Natural AI voices in multiple languages. Create compelling audio from your text with ease.</p>
-        <a href="#try-tts" className="btn">Get Started Now</a>
+        <p>
+          Natural AI voices in multiple languages. Create compelling audio from
+          your text with ease. TextToVoicePro is the fastest online
+          text-to-speech converter—generate natural-sounding AI voiceovers,
+          download MP3 audio instantly, and power podcasts, videos, e-learning,
+          and more with free and premium voices.
+        </p>
+
+        <a href="#try-tts" className="btn">
+          Get Started Now
+        </a>
       </header>
 
       <section className="section" id="try-tts">
         <h2>Experience Our Text-to-Speech</h2>
         <div className="tts-controls-container">
-
-          <PremiumTTS
+          {/* <PremiumTTS
             onAudioGenerated={handleAudioGenerated}
             onLoadingChange={handleLoadingChange}
             onMessageChange={handleMessageChange}
-          />
+          /> */}
 
           <FreeTTS
             onAudioGenerated={handleAudioGenerated}
@@ -74,7 +96,7 @@ const handleAudioGenerated = useCallback((url) => {
             ref={audioPlayerRef} // Use the ref here instead of id
             controls
             src={audioUrl}
-            style={{ display: audioUrl ? 'block' : 'none' }}
+            style={{ display: audioUrl ? "block" : "none" }}
           ></audio>
 
           {audioUrl && (
@@ -85,18 +107,21 @@ const handleAudioGenerated = useCallback((url) => {
               download
               target="_blank"
               rel="noopener noreferrer"
-              style={{ display: 'inline-block', marginTop: '30px' }}
+              style={{ display: "inline-block", marginTop: "30px" }}
             >
               Download Generated Audio
             </a>
           )}
 
           {message.text && (
-            <div id="messageArea" className={message.type} style={{ display: 'block' }}>
+            <div
+              id="messageArea"
+              className={message.type}
+              style={{ display: "block" }}
+            >
               {message.text}
             </div>
           )}
-
         </div>
       </section>
 
