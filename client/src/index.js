@@ -8,8 +8,11 @@ import ReactGA from 'react-ga4';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const GA4_MEASUREMENT_ID = process.env.REACT_APP_GA4_MEASUREMENT_ID || 'G-X4JQVB1HH9';
+const GA4_MEASUREMENT_ID_2 = 'G-TR2DSMXQFV';
+
 // Initialize Google Analytics 4
 ReactGA.initialize(GA4_MEASUREMENT_ID);
+ReactGA.initialize(GA4_MEASUREMENT_ID_2);
 
 // Optional: Send initial pageview for the root path
 // This is important for Single Page Applications (SPAs)

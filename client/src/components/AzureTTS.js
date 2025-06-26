@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 // Assuming ReactGA is set up in your App.js or a higher level if you want GA events here too
-// import ReactGA from "react-ga4"; // Uncomment if you want to add GA events to AzureTTS
+import ReactGA from "react-ga4"; // Uncomment if you want to add GA events to AzureTTS
 
 const AzureTTS = ({ onAudioGenerated, onLoadingChange, onMessageChange }) => {
   const [text, setText] = useState('');
@@ -99,12 +99,12 @@ const AzureTTS = ({ onAudioGenerated, onLoadingChange, onMessageChange }) => {
           errorData = { message: await response.text() || `Server error: ${response.status} ${response.statusText}` };
         }
         // // Optional: Add GA event for failed generation
-        // ReactGA.event({
-        //   category: "Speech Generation",
-        //   action: "Azure Speech Generation Failed",
-        //   label: `Error: ${errorData.message}`,
-        //   value: text.length,
-        // });
+        ReactGA.event({
+          category: "Speech Generation",
+          action: "Azure Speech Generation Failed",
+          label: `Error:`,
+          value: text.length,
+        });
         throw new Error(errorData.message || `Server error: ${response.status} ${response.statusText}`);
       }
 
@@ -122,11 +122,11 @@ const AzureTTS = ({ onAudioGenerated, onLoadingChange, onMessageChange }) => {
         onMessageChange("Azure AI voice generated successfully!", "success");
 
         // // Optional: Add GA event for successful generation
-        // ReactGA.event({
-        //   category: "Speech Generation",
-        //   action: "Azure Speech Generated",
-        //   value: text.length,
-        // });
+        ReactGA.event({
+          category: "Speech Generation",
+          action: "Azure Speech Generated",
+          value: text.length,
+        });
         // console.log("GA4 event sent: Azure Speech Generated");
 
       } else {
@@ -134,23 +134,23 @@ const AzureTTS = ({ onAudioGenerated, onLoadingChange, onMessageChange }) => {
         onMessageChange(`Error generating Azure AI voice: ${data.message || 'Unknown error or missing URL'}`, "error");
         console.error("Azure TTS Error Response (data.success is false or url missing):", data);
         // // Optional: Add GA event for generation failure due to backend logic
-        // ReactGA.event({
-        //   category: "Speech Generation",
-        //   action: "Azure Speech Generation Failed",
-        //   label: `Backend Logic Error: ${data.message}`,
-        //   value: text.length,
-        // });
+        ReactGA.event({
+          category: "Speech Generation",
+          action: "Azure Speech Generation Failed",
+          label: `Backend Logic Error`,
+          value: text.length,
+        });
       }
     } catch (error) {
       onMessageChange(`Network or server error: ${error.message}`, "error");
       console.error("Azure TTS Fetch Error:", error);
       // // Optional: Add GA event for network/fetch errors
-      // ReactGA.event({
-      //   category: "Speech Generation",
-      //   action: "Azure Speech Generation Failed",
-      //   label: `Network Error: ${error.message}`,
-      //   value: text.length,
-      // });
+      ReactGA.event({
+        category: "Speech Generation",
+        action: "Azure Speech Generation Failed",
+        label: `Network Error`,
+        value: text.length,
+      });
     } finally {
       onLoadingChange(false);
     }
